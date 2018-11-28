@@ -1,0 +1,29 @@
+{
+  "name": "egg4/microfarm-api",
+  "description": "Microfarm manager",
+  "keywords": [
+    "egg-framework",
+    "microfarm-api"
+  ],
+  "homepage": "https://github.com/egg4/microfarm-api",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "ClementS",
+      "role": "Developer"
+    }
+  ],
+  "require": {
+    "php": "~5.6",
+    "egg4/egg-framework": "dev-master"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "5.5.7"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:egg4/egg-framework.git"
+    }
+  ]
+}
