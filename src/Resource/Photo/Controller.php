@@ -48,12 +48,23 @@ class Controller extends \Egg\Controller\Generic
 
     protected function urlToFilename($url)
     {
-        return ROOT_DIR . '/public' . $url;
+        $dir = str_replace(
+            '{root_dir}',
+            ROOT_DIR,
+            $this->container['config']['photo']['dir']
+        );
+
+        return realpath($dir . $url);
     }
 
     protected function createFile($content)
     {
-        $url = '/img/photo/photo-' . \Egg\Yolk\Rand::alphanum(8) . '.jpg';
+        $url = str_replace(
+            '{id}',
+            \Egg\Yolk\Rand::alphanum(8),
+            $this->container['config']['photo']['url']
+        );
+
         $filename = $this->urlToFilename($url);
         file_put_contents($filename, $content);
 
