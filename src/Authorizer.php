@@ -48,19 +48,21 @@ class Authorizer extends \Egg\Authorizer\Generic
             return [];
         }
 
+        $userRoleRepository = $this->container['repository']['user_role'];
+        $userRoles = $userRoleRepository->selectAll(['user_id' => $authentication['user']['id']]);
         if ($this->resource == 'entity' AND $action == 'select') {
-            $userRoleRepository = $this->container['repository']['user_role'];
-            $entities = $userRoleRepository->selectAll(['user_id' => $authentication['user']['id']]);
             return [
-                'id' => $entities->toArray('entity_id'),
+                'id' => $userRoles->toArray('entity_id'),
             ];
         }
-
         if ($this->resource == 'user_role' AND in_array($action, ['select', 'authenticate'])) {
-            $userRoleRepository = $this->container['repository']['user_role'];
-            $entities = $userRoleRepository->selectAll(['user_id' => $authentication['user']['id']]);
             return [
-                'entity_id' => $entities->toArray('entity_id'),
+                'entity_id' => $userRoles->toArray('entity_id'),
+            ];
+        }
+        if ($this->resource == 'role' AND in_array($action, ['select'])) {
+            return [
+                'entity_id' => $userRoles->toArray('entity_id'),
             ];
         }
 
@@ -78,6 +80,7 @@ class Authorizer extends \Egg\Authorizer\Generic
     {
         $authentication = $this->container['request']->getAttribute('authentication');
 
+        // Admin
         if (is_null($authentication['user_role']['role_id'])) {
             return [
                 'entity_id' => $authentication['user_role']['entity_id'],
