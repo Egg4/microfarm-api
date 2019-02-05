@@ -6,39 +6,25 @@ class Authorizer extends \Egg\Authorizer\Generic
 {
     protected function analyse($action)
     {
-        return $this->isUserAuthenticated() ?
-            $this->analyseUserAuthenticated($action) :
-            $this->analyseUserNotAuthenticated($action);
+        $authentication = $this->container['request']->getAttribute('authentication');
+
+        return $this->isUserAuthenticated($authentication)
+            ? $this->analyseUserAuthenticated($authentication, $action)
+            : [];
     }
 
-    protected function isUserAuthenticated()
+    protected function isUserAuthenticated($authentication)
     {
-        $authentication = $this->container['request']->getAttribute('authentication');
         return isset($authentication['user']);
     }
 
-    protected function isUserRoleAuthenticated()
+    protected function isUserRoleAuthenticated($authentication)
     {
-        $authentication = $this->container['request']->getAttribute('authentication');
         return isset($authentication['user_role']);
     }
 
-    protected function analyseUserNotAuthenticated($action)
+    protected function analyseUserAuthenticated($authentication, $action)
     {
-        if ($this->resource == 'user' AND $action == 'login') {
-            return [];
-        }
-
-        throw new \Egg\Http\Exception($this->container['response'], 403, new \Egg\Http\Error(array(
-            'name'          => 'authentication_required',
-            'description'   => 'Authentication is required',
-        )));
-    }
-
-    protected function analyseUserAuthenticated($action)
-    {
-        $authentication = $this->container['request']->getAttribute('authentication');
-
         if ($this->resource == 'user' AND $action == 'logout') {
             return [];
         }
@@ -66,8 +52,8 @@ class Authorizer extends \Egg\Authorizer\Generic
             ];
         }
 
-        if ($this->isUserRoleAuthenticated()) {
-            return $this->analyseUserRoleAuthenticated($action);
+        if ($this->isUserRoleAuthenticated($authentication)) {
+            return $this->analyseUserRoleAuthenticated($authentication, $action);
         }
 
         throw new \Egg\Http\Exception($this->container['response'], 403, new \Egg\Http\Error(array(
@@ -76,12 +62,46 @@ class Authorizer extends \Egg\Authorizer\Generic
         )));
     }
 
-    protected function analyseUserRoleAuthenticated($action)
+    protected function analyseUserRoleAuthenticated($authentication, $action)
     {
-        $authentication = $this->container['request']->getAttribute('authentication');
+        if ($this->resource == 'entity' AND $action == 'all') {
+            return [];
+        }
 
-        // Admin
+        // Admin user
         if (is_null($authentication['user_role']['role_id'])) {
+            return $this->analyseAdminAccess($authentication, $action);
+        }
+        // Not admin user
+        else {
+            return $this->analyseRoleAccess($authentication, $action);
+        }
+    }
+
+    protected function analyseAdminAccess($authentication, $action)
+    {
+        if ($this->resource == 'user' AND $action == 'select') {
+            return [];
+        }
+
+        return [
+            'entity_id' => $authentication['user_role']['entity_id'],
+        ];
+    }
+
+    protected function analyseRoleAccess($authentication, $action)
+    {
+        $roleAccessRepository = $this->container['repository']['role_access'];
+        $roleAccess = $roleAccessRepository->selectOne([
+            'entity_id' => $authentication['user_role']['entity_id'],
+            'role_id'   => $authentication['user_role']['role_id'],
+            'resource'  => $this->resource,
+        ]);
+
+        if ($roleAccess
+            AND isset($roleAccess->$action)
+            AND $roleAccess->$action === true
+        ) {
             return [
                 'entity_id' => $authentication['user_role']['entity_id'],
             ];

@@ -22,13 +22,11 @@ class Controller extends \Egg\Controller\Generic
     {
         $authentication = $this->container['request']->getAttribute('authentication');
         $entityId = $authentication['user_role']['entity_id'];
-        $userId = $authentication['user']['id'];
         $userRoleRepository = $this->container['repository']['user_role'];
 
         if (in_array($resource, ['entity'])) {
-            $userRoles = $userRoleRepository->selectAll(['user_id' => $userId]);
             return [
-                'id' => $userRoles->toArray('entity_id'),
+                'id' => $entityId,
             ];
         }
 
@@ -36,12 +34,6 @@ class Controller extends \Egg\Controller\Generic
             $userRoles = $userRoleRepository->selectAll(['entity_id' => $entityId]);
             return [
                 'id' => $userRoles->toArray('user_id'),
-            ];
-        }
-
-        if (in_array($resource, ['user_role'])) {
-            return [
-                'user_id' => $userId,
             ];
         }
 

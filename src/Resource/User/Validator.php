@@ -6,6 +6,27 @@ use Egg\Exception\InvalidContent as InvalidContentException;
 
 class Validator extends \Egg\Validator\Generic
 {
+    public function signup(array $params)
+    {
+        $this->checkRequired($params);
+        $this->checkParams($params);
+        $this->checkForeignKeys($params);
+        $this->checkUniqueKeys($params);
+    }
+
+    public function activate(array $params)
+    {
+        $this->requireParams(['key'], $params);
+
+        $data = $this->container['cache']->get($params['key']);
+        if (!$data) {
+            throw new \Egg\Http\Exception($this->container['response'], 404, new \Egg\Http\Error(array(
+                'name'          => 'not_found',
+                'description'   => sprintf('Key "%s" not found', $params['key']),
+            )));
+        }
+    }
+
     public function login(array $params)
     {
         $this->requireParams(['email', 'password'], $params);
