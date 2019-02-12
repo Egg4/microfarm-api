@@ -1,5 +1,6 @@
 .idea/
 Command Prompt.lnk
+cache/
 vendor/
 desktop.ini
 src/Config/prod.ini
