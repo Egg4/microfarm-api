@@ -16,10 +16,6 @@ abstract class FactoryTest
             ]);
             registerServices($container);
             registerComponents($container);
-
-            $container['cache'] = function($container) {
-                return new \Egg\Cache\Memory($container['config']['cache']);
-            };
         }
 
         return $container;
@@ -42,34 +38,22 @@ abstract class FactoryTest
     public static function login($data)
     {
         $client = self::getClient();
-        $content = $client->post('/v1.0/user/login', [], [
-            'email'     => $data['email'],
-            'password'  => $data['password'],
-        ]);
-
-        if (isset($content['key'])) {
-            $client->setHeader('Authorization', $content['key']);
+        $response = $client->post('/v1.0/user/login', [], $data);
+        if (isset($response['key'])) {
+            $client->setHeader('Authorization', $response['key']);
         }
 
-        return $content;
-    }
-
-    public static function logout()
-    {
-        $client = self::getClient();
-        $content = $client->post('/v1.0/user/logout');
-        $client->removeHeader('Authorization');
-
-        return $content;
+        return $response;
     }
 
     public static function authenticate($data)
     {
         $client = self::getClient();
-        $content = $client->post('/v1.0/user_role/authenticate', [], [
-            'id'    => $data['id'],
-        ]);
+        $response = $client->post('/v1.0/user_role/authenticate', [], $data);
+        if (isset($response['key'])) {
+            $client->setHeader('Authorization', $response['key']);
+        }
 
-        return $content;
+        return $response;
     }
 }

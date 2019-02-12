@@ -3,7 +3,7 @@ namespace App\Resource\UserRole;
 
 use App\FactoryTest;
 
-class ControllerTest extends \PHPUnit\Framework\TestCase
+class AuthenticateTest extends \PHPUnit\Framework\TestCase
 {
     public function setUp()
     {
@@ -11,7 +11,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
         $this->client = FactoryTest::getClient();
         $this->container['database']->beginTransaction();
 
-        $password = 'Aa123456';
+        $password = 'Password123';
         $this->user = $this->container['factory']['user']->create([
             'password'  => $password,
         ]);
@@ -26,27 +26,28 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 
     public function tearDown()
     {
-        FactoryTest::logout();
         $this->container['database']->rollback();
     }
 
-    public function testAuthenticateShouldRaiseNotFoundException()
+    public function testShouldRaiseNotAllowedException()
     {
-        $content = FactoryTest::authenticate([
+        $response = FactoryTest::authenticate([
             'id' => 0,
         ]);
 
         $this->assertEquals(403, $this->client->getResponse()->getStatusCode());
-        $this->assertEquals('not_allowed', $content[0]['name']);
+        $this->assertEquals('not_allowed', $response[0]['name']);
     }
 
-    public function testAuthenticateShouldSucceed()
+    public function testShouldSucceed()
     {
-        $content = FactoryTest::authenticate([
+        $response = FactoryTest::authenticate([
             'id' => $this->userRole->id,
         ]);
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        $this->assertEquals($this->user->id, $content['user_role']['user_id']);
+        $this->assertEquals($this->userRole->entity_id, $response['entity_id']);
+        $this->assertEquals($this->userRole->user_id, $response['user_id']);
+        $this->assertEquals($this->userRole->role_id, $response['role_id']);
     }
 }

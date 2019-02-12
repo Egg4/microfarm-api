@@ -21,27 +21,26 @@ class LoginTest extends \PHPUnit\Framework\TestCase
         $this->container['database']->rollback();
     }
 
-    public function testLoginShouldRaiseExceptionAuthenticationFailure()
+    public function testShouldRaiseExceptionAuthenticationFailure()
     {
-        $content = FactoryTest::login([
+        $response = FactoryTest::login([
             'email'     => $this->user->email,
             'password'  => 'BadPassword123',
         ]);
 
         $this->assertEquals(403, $this->client->getResponse()->getStatusCode());
-        $this->assertEquals('authentication_failure', $content[0]['name']);
+        $this->assertEquals('authentication_failure', $response[0]['name']);
     }
 
-    public function testLoginShouldSucceed()
+    public function testShouldSucceed()
     {
-        $content = FactoryTest::login([
+        $response = FactoryTest::login([
             'email'     => $this->user->email,
             'password'  => 'Password123',
         ]);
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        $this->assertEquals($this->user->email, $content['user']['email']);
-        $this->assertEquals(32, strlen($content['key']));
-        $this->assertEquals(false, isset($content['user']['password']));
+        $this->assertEquals(true, strlen($response['key']) > 0);
+        $this->assertEquals($this->user->id, $response['user_id']);
     }
 }

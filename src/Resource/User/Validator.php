@@ -18,7 +18,7 @@ class Validator extends \Egg\Validator\Generic
     {
         $this->requireParams(['key'], $params);
 
-        $data = $this->container['cache']->get($params['key']);
+        $data = $this->container['authenticator']->get($params['key']);
         if (!$data) {
             throw new \Egg\Http\Exception($this->container['response'], 404, new \Egg\Http\Error(array(
                 'name'          => 'not_found',
@@ -42,7 +42,7 @@ class Validator extends \Egg\Validator\Generic
         }
     }
 
-    public function logout(array $params)
+    public function defer(array $params)
     {
 
     }

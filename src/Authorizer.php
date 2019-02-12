@@ -15,12 +15,15 @@ class Authorizer extends \Egg\Authorizer\Generic
 
     protected function isUserAuthenticated($authentication)
     {
-        return isset($authentication['user']);
+        return is_array($authentication)
+        AND array_key_exists('user_id', $authentication);
     }
 
     protected function isUserRoleAuthenticated($authentication)
     {
-        return isset($authentication['user_role']);
+        return is_array($authentication)
+        AND array_key_exists('entity_id', $authentication)
+        AND array_key_exists('role_id', $authentication);
     }
 
     protected function analyseUserAuthenticated($authentication, $action)
@@ -35,7 +38,7 @@ class Authorizer extends \Egg\Authorizer\Generic
         }
 
         $userRoleRepository = $this->container['repository']['user_role'];
-        $userRoles = $userRoleRepository->selectAll(['user_id' => $authentication['user']['id']]);
+        $userRoles = $userRoleRepository->selectAll(['user_id' => $authentication['user_id']]);
         if ($this->resource == 'entity' AND $action == 'select') {
             return [
                 'id' => $userRoles->toArray('entity_id'),
@@ -43,10 +46,10 @@ class Authorizer extends \Egg\Authorizer\Generic
         }
         if ($this->resource == 'user_role' AND in_array($action, ['select', 'authenticate'])) {
             return [
-                'entity_id' => $userRoles->toArray('entity_id'),
+                'id' => $userRoles->toArray('id'),
             ];
         }
-        if ($this->resource == 'role' AND in_array($action, ['select'])) {
+        if ($this->resource == 'role' AND $action == 'select') {
             return [
                 'entity_id' => $userRoles->toArray('entity_id'),
             ];
@@ -69,7 +72,7 @@ class Authorizer extends \Egg\Authorizer\Generic
         }
 
         // Admin user
-        if (is_null($authentication['user_role']['role_id'])) {
+        if (is_null($authentication['role_id'])) {
             return $this->analyseAdminAccess($authentication, $action);
         }
         // Not admin user
@@ -85,7 +88,7 @@ class Authorizer extends \Egg\Authorizer\Generic
         }
 
         return [
-            'entity_id' => $authentication['user_role']['entity_id'],
+            'entity_id' => $authentication['entity_id'],
         ];
     }
 
@@ -93,8 +96,8 @@ class Authorizer extends \Egg\Authorizer\Generic
     {
         $roleAccessRepository = $this->container['repository']['role_access'];
         $roleAccess = $roleAccessRepository->selectOne([
-            'entity_id' => $authentication['user_role']['entity_id'],
-            'role_id'   => $authentication['user_role']['role_id'],
+            'entity_id' => $authentication['entity_id'],
+            'role_id'   => $authentication['role_id'],
             'resource'  => $this->resource,
         ]);
 
@@ -103,7 +106,7 @@ class Authorizer extends \Egg\Authorizer\Generic
             AND $roleAccess->$action === true
         ) {
             return [
-                'entity_id' => $authentication['user_role']['entity_id'],
+                'entity_id' => $authentication['entity_id'],
             ];
         }
 

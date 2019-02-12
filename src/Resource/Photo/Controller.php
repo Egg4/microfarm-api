@@ -48,13 +48,7 @@ class Controller extends \Egg\Controller\Generic
 
     protected function urlToFilename($url)
     {
-        $dir = str_replace(
-            '{root_dir}',
-            ROOT_DIR,
-            $this->container['config']['photo']['dir']
-        );
-
-        return realpath($dir . $url);
+        return realpath($this->container['config']['photo']['dir'] . $url);
     }
 
     protected function createFile($content)

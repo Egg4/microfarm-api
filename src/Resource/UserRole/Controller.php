@@ -6,12 +6,19 @@ class Controller extends \Egg\Controller\Generic
 {
     public function authenticate(array $params)
     {
-        $entity = $this->repository->selectOneById($params['id']);
-        $authentication = $this->container['request']->getAttribute('authentication');
-        $serializer = $this->container['serializer'][$this->resource];
-        $authentication[$this->resource] = $serializer->serialize($entity);
-        $this->container['authenticator']->set($authentication['key'], $authentication);
+        $userRole = $this->repository->selectOneById($params['id']);
 
-        return $authentication;
+        $authData = $this->container['request']->getAttribute('authentication');
+        $authData = array_merge($authData, [
+            'entity_id' => $userRole->entity_id,
+            'role_id'   => $userRole->role_id,
+        ]);
+        $timeout = $this->container['config']['authentication']['timeout'];
+        $key = $this->container['authenticator']->create($authData, $timeout);
+
+        return array_merge($authData, [
+            'key'       => $key,
+            'timeout'   => $timeout,
+        ]);
     }
 }

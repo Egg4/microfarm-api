@@ -6,43 +6,52 @@ class Controller extends \Egg\Controller\Generic
 {
     public function signup(array $params)
     {
-        $key = \Egg\Yolk\Rand::alphanum(18);
         $hashPassword = $this->container['password']['hash'];
         $params['password'] = $hashPassword($params['password']);
-        $ttl = $this->container['config']['signup']['timeout'];
-        $this->container['cache']->set($key, $params, $ttl);
+        $timeout = $this->container['config']['signup']['timeout'];
+        $key = $this->container['authenticator']->create($params, $timeout);
 
         return [
-            'key' => $key,
+            'key'       => $key,
+            'timeout'   => $timeout,
         ];
     }
 
     public function activate(array $params)
     {
-        $cache = $this->container['cache'];
-        $key = $params['key'];
-        $data = $cache->get($key);
-        $cache->delete($key);
+        $data = $this->container['authenticator']->get($params['key']);
         $id = $this->repository->insert($data);
-        $entity = $this->repository->selectOneById($id);
+        $user = $this->repository->selectOneById($id);
         $serializer = $this->container['serializer'][$this->resource];
 
-        return $serializer->serialize($entity);
+        return $serializer->serialize($user);
     }
 
     public function login(array $params)
     {
         $entity = $this->repository->selectOneByEmail($params['email']);
-        $serializer = $this->container['serializer'][$this->resource];
-        $data[$this->resource] = $serializer->serialize($entity);
-        $authentication = $this->container['authenticator']->create($data);
 
-        return $authentication;
+        $authData = [
+            'user_id' => $entity->id,
+        ];
+        $timeout = $this->container['config']['authentication']['timeout'];
+        $key = $this->container['authenticator']->create($authData, $timeout);
+
+        return array_merge($authData, [
+            'key'       => $key,
+            'timeout'   => $timeout,
+        ]);
     }
 
-    public function logout()
+    public function defer()
     {
-        $authentication = $this->container['request']->getAttribute('authentication');
-        $this->container['authenticator']->delete($authentication['key']);
+        $authData = $this->container['request']->getAttribute('authentication');
+        $timeout = $this->container['config']['authentication']['timeout'];
+        $key = $this->container['authenticator']->create($authData, $timeout);
+
+        return [
+            'key'       => $key,
+            'timeout'   => $timeout,
+        ];
     }
 }

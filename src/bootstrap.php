@@ -45,13 +45,15 @@ function registerServices(Container $container)
         return new \Egg\Router();
     };
 
-    $container['cache'] = function($container) {
-        return new \Egg\Cache\Memcache($container['config']['cache']);
-    };
+    $container['cache'] = new Container([
+        'file' => function() use ($container) {
+            return new \Egg\Cache\File($container['config']['cache.file']);
+        },
+    ]);
 
     $container['authenticator'] = function($container) {
-        return new \Egg\Authenticator\Cache([
-            'container' => $container,
+        return new \Egg\Authenticator\Token([
+            'secret'    => $container['config']['authentication']['secret'],
             'timeout'   => $container['config']['authentication']['timeout'],
         ]);
     };
@@ -74,7 +76,8 @@ function registerServices(Container $container)
 
     $container['schema'] = function($container) {
         return new \Egg\Orm\Schema\Mysql([
-            'container' => $container,
+            'database'  => $container['database'],
+            'cache'     => $container['cache']['file'],
         ]);
     };
 
@@ -185,29 +188,29 @@ function registerComponents(Container $container)
 {
     $container['components'] = [
         new \Egg\Component\Http\Response\ContentType([
-            'media.types'   => $container['config']['response']['media.types'],
-            'charset'       => $container['config']['response']['charset'],
+            'media.types'       => $container['config']['response']['media.types'],
+            'charset'           => $container['config']['response']['charset'],
         ]),
         new \Egg\Component\Http\Exception(),
         new \Egg\Component\Http\Cors([
-            'origin'        => $container['config']['cors']['origin'],
-            'methods'       => $container['config']['cors']['methods'],
-            'headers.allow' => $container['config']['cors']['headers.allow'],
-            'headers.expose'=> $container['config']['cors']['headers.expose'],
+            'origin'            => $container['config']['cors']['origin'],
+            'methods'           => $container['config']['cors']['methods'],
+            'headers.allow'     => $container['config']['cors']['headers.allow'],
+            'headers.expose'    => $container['config']['cors']['headers.expose'],
         ]),
         new \Egg\Component\Http\Request\Accept([
-            'media.types'   => $container['config']['response']['media.types'],
+            'media.types'       => $container['config']['response']['media.types'],
         ]),
         //new \Egg\Component\Http\Request\AcceptLanguage(),
         new \Egg\Component\Http\Request\ContentEncoding([
-            'media.encodings' => $container['config']['request']['media.encodings'],
+            'media.encodings'   => $container['config']['request']['media.encodings'],
         ]),
         new \Egg\Component\Http\Request\ContentType([
-            'media.types'   => $container['config']['request']['media.types'],
+            'media.types'       => $container['config']['request']['media.types'],
         ]),
         new \Egg\Component\Http\Route(),
         new \Egg\Component\Http\Authentication([
-            'routes'  => $container['config']['authentication']['routes'],
+            'routes'            => $container['config']['authentication']['routes'],
         ]),
         new \Egg\Component\Resource\Version(),
         new \Egg\Component\Resource\Filter(),

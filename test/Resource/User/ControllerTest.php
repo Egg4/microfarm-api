@@ -11,7 +11,7 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
         $this->client = FactoryTest::getClient();
         $this->container['database']->beginTransaction();
 
-        $password = 'Aa123456';
+        $password = 'Password123';
         $this->user = $this->container['factory']['user']->create([
             'password'  => $password,
         ]);
@@ -23,7 +23,6 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
 
     public function tearDown()
     {
-        FactoryTest::logout();
         $this->container['database']->rollback();
     }
 

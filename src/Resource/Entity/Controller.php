@@ -21,7 +21,7 @@ class Controller extends \Egg\Controller\Generic
     private function getFilterParams($resource)
     {
         $authentication = $this->container['request']->getAttribute('authentication');
-        $entityId = $authentication['user_role']['entity_id'];
+        $entityId = $authentication['entity_id'];
         $userRoleRepository = $this->container['repository']['user_role'];
 
         if (in_array($resource, ['entity'])) {
