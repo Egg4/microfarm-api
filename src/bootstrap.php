@@ -214,6 +214,7 @@ function registerComponents(Container $container)
         ]),
         new \Egg\Component\Http\Route(),
         new \Egg\Component\Http\Authentication([
+            'header.key'        => $container['config']['authentication']['header.key'],
             'routes'            => $container['config']['authentication']['routes'],
         ]),
         new \Egg\Component\Resource\Version(),

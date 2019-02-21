@@ -1,6 +1,7 @@
 .idea/
 Command Prompt.lnk
 cache/
+log/
 vendor/
 desktop.ini
 src/Config/prod.ini
