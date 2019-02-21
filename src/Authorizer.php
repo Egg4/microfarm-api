@@ -28,10 +28,6 @@ class Authorizer extends \Egg\Authorizer\Generic
 
     protected function analyseUserAuthenticated($authentication, $action)
     {
-        if ($this->resource == 'user' AND $action == 'logout') {
-            return [];
-        }
-
         if (in_array($this->resource, ['family', 'genus', 'species', 'plant', 'category'])
             AND $action == 'select') {
             return [];
