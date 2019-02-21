@@ -44,12 +44,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Egg4/egg-framework.git",
-                "reference": "d91652b67658a2eab6faf1516ab0a3ec13282fd6"
+                "reference": "6a927e1fa3e580ec02df94973f51e975f169235d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Egg4/egg-framework/zipball/d91652b67658a2eab6faf1516ab0a3ec13282fd6",
-                "reference": "d91652b67658a2eab6faf1516ab0a3ec13282fd6",
+                "url": "https://api.github.com/repos/Egg4/egg-framework/zipball/6a927e1fa3e580ec02df94973f51e975f169235d",
+                "reference": "6a927e1fa3e580ec02df94973f51e975f169235d",
                 "shasum": ""
             },
             "require": {
@@ -85,7 +85,7 @@
                 "source": "https://github.com/Egg4/egg-framework/tree/master",
                 "issues": "https://github.com/Egg4/egg-framework/issues"
             },
-            "time": "2019-02-12 19:20:13"
+            "time": "2019-02-21 13:26:03"
         },
         {
             "name": "neomerx/cors-psr7",

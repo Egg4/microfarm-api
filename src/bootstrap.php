@@ -28,6 +28,10 @@ function registerServices(Container $container)
         return new \Egg\Yolk\Set($config);
     };
 
+    $container['logger'] = function($container) {
+        return new \Egg\Logger\File($container['config']['logger']);
+    };
+
     $container['password'] = new Container([
         'hash' => function() {
             return function($password) {
