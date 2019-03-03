@@ -48,27 +48,37 @@ class Controller extends \Egg\Controller\Generic
 
     protected function urlToFilename($url)
     {
-        return realpath($this->container['config']['photo']['dir'] . $url);
+        return $this->container['config']['photo']['dir'] . $url;
     }
 
     protected function createFile($content)
     {
+        $authentication = $this->container['request']->getAttribute('authentication');
+
+        $replacements = [
+            '{entity_id}' => $authentication['entity_id'],
+            '{photo_hash}' => \Egg\Yolk\Rand::alphanum(32),
+        ];
         $url = str_replace(
-            '{id}',
-            \Egg\Yolk\Rand::alphanum(8),
+            array_keys($replacements),
+            array_values($replacements),
             $this->container['config']['photo']['url']
         );
 
         $filename = $this->urlToFilename($url);
+        $dirname = dirname($filename);
+        if (!file_exists($dirname)) {
+            mkdir($dirname, 0777, true);
+        }
         file_put_contents($filename, $content);
 
         return $url;
     }
 
-    protected function deleteFile($entityId)
+    protected function deleteFile($id)
     {
-        $entity = $this->repository->selectOneById($entityId);
-        $filename = $this->urlToFilename($entity->url);
+        $photo = $this->repository->selectOneById($id);
+        $filename = $this->urlToFilename($photo->url);
         @unlink($filename);
     }
 }
