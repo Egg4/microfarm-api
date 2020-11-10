@@ -5,7 +5,7 @@ use App\FactoryTest;
 
 class CorsTest extends \PHPUnit\Framework\TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->container = FactoryTest::getContainer();
         $this->client = FactoryTest::getClient();

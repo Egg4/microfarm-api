@@ -1,9 +1,9 @@
-.idea/
-Command Prompt.lnk
 cache/
 log/
 vendor/
-desktop.ini
 src/Config/prod.ini
 src/Config/test.ini
 src/Config/dev.ini
+.buildpath
+.project
+.settings/

@@ -40,7 +40,7 @@ abstract class FactoryTest
         $client = self::getClient();
         $response = $client->post('/v1.0/user/login', [], $data);
         if (isset($response['key'])) {
-            $client->setHeader('Authorization', $response['key']);
+            $client->setHeader('Auth-Token', $response['key']);
         }
 
         return $response;
@@ -51,7 +51,7 @@ abstract class FactoryTest
         $client = self::getClient();
         $response = $client->post('/v1.0/user_role/authenticate', [], $data);
         if (isset($response['key'])) {
-            $client->setHeader('Authorization', $response['key']);
+            $client->setHeader('Auth-Token', $response['key']);
         }
 
         return $response;

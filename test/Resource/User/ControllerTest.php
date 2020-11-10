@@ -5,7 +5,7 @@ use App\FactoryTest;
 
 class ControllerTest extends \PHPUnit\Framework\TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->container = FactoryTest::getContainer();
         $this->client = FactoryTest::getClient();
@@ -21,19 +21,17 @@ class ControllerTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->container['database']->rollback();
     }
 
     public function testSelectShouldRaiseExceptionNotAllowed()
     {
-        /*
         $content = $this->client->get('/v1.0/user?range=0-10');
 
         $this->assertEquals(403, $this->client->getResponse()->getStatusCode());
         $this->assertEquals('not_allowed', $content[0]['name']);
-        */
     }
 
     /*

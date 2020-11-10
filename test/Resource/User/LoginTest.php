@@ -5,7 +5,7 @@ use App\FactoryTest;
 
 class LoginTest extends \PHPUnit\Framework\TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $this->container = FactoryTest::getContainer();
         $this->client = FactoryTest::getClient();
@@ -16,7 +16,7 @@ class LoginTest extends \PHPUnit\Framework\TestCase
         ]);
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         $this->container['database']->rollback();
     }
